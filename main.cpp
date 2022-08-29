@@ -163,32 +163,50 @@ int main(int argc, char** argv)
             0.2f,0.3f,0.4f,-1.0f,  0.0f, 0.0f,
             0.2f,0.5f,0.6f,-0.5f, -0.8f, 0.0f,
             0.5f,0.6f,0.8f,0.0f, -0.0f, 0.0f,
+    };
+    float vertices2[] = {
+            0.5f,0.6f,0.8f,0.0f, -0.0f, 0.0f,
             0.7f,0.4f,0.1f,0.5f,  0.5f, 0.0f,
-            0.4f,0.3f,0.1f,1.0f,0.0f,0.0f//
+            0.4f,0.3f,0.1f,1.0f,0.0f,0.0f
     };
 
-    unsigned int indices[] = {  // note that we start from 0!
-            0, 1, 2,  // first Triangle
-            2, 3, 4   // second Triangle
-    };
-    unsigned int VBO, VAO, EBO,COLOR;     // VBO顶点缓冲对象，VAO顶点数组对象，EBO元素缓冲对象(也叫索引缓冲对象IBO)
-    glGenVertexArrays(1, &VAO);     // 生成顶点数组对象,第一个参数是数量，第二个参数是地址。如果生成多个对象，可以使用数组地址，函数会依次填入
-    glGenBuffers(1, &VBO);          // 生成缓冲对象
-    glGenBuffers(1, &EBO);          // 生成缓冲对象
+//    unsigned int indices[] = {  // note that we start from 0!
+//            0, 1, 2,  // first Triangle
+//            2, 3, 4   // second Triangle
+//    };
+    unsigned int VBO1,VBO2, VAO[2], EBO,COLOR;     // VBO顶点缓冲对象，VAO顶点数组对象，EBO元素缓冲对象(也叫索引缓冲对象IBO)
+    glGenVertexArrays(2, VAO);     // 生成顶点数组对象,第一个参数是数量，第二个参数是地址。如果生成多个对象，可以使用数组地址，函数会依次填入
+    glGenBuffers(1, &VBO1);          // 生成缓冲对象
+    glGenBuffers(1, &VBO2);
+//    glGenBuffers(1, &EBO);          // 生成缓冲对象
     // glGenBuffers(1, &COLOR);
     // bind the Vertex Array Object first, then bind and set vertex buffer(s), and then configure vertex attributes(s).
-    glBindVertexArray(VAO);         // 绑定顶点数组对象ID
+    glBindVertexArray(VAO[0]);         // 绑定顶点数组对象ID
 
     // OpenGL允许同时绑定多个缓冲，只要是不同的缓冲类型，也就是说绑定了GL_ARRAY_BUFFER这个缓冲类型
     // 后面不能再绑定GL_ARRAY_BUFFER这个缓冲类型。
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    std::cout<<"VBO: "<<VBO<<std::endl;
+    glBindBuffer(GL_ARRAY_BUFFER, VBO1);
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);  // 复制顶点数据到显存，vertices是矩形顶点数据
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void *)(3 * sizeof(float)));       // 这个函数告诉OpenGL如何解析顶点数据
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void *)0);
+    // glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+    glEnableVertexAttribArray(0);       // 默认情况下顶点属性变量是关闭的，需要使用glEnableVertexAttribArray启用
+    glEnableVertexAttribArray(1);
+
+    glBindVertexArray(VAO[1]);         // 绑定顶点数组对象ID
+    glBindBuffer(GL_ARRAY_BUFFER, VBO2);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices2), vertices2, GL_STATIC_DRAW);  // 复制顶点数据到显存，vertices是矩形顶点数据
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void *)(3 * sizeof(float)));       // 这个函数告诉OpenGL如何解析顶点数据
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void *)0);
+    // glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+    glEnableVertexAttribArray(0);       // 默认情况下顶点属性变量是关闭的，需要使用glEnableVertexAttribArray启用
+    glEnableVertexAttribArray(1);
+
     //glBindBuffer(GL_ARRAY_BUFFER, COLOR);
     //glBufferData(GL_ARRAY_BUFFER, sizeof(colors), colors, GL_STATIC_DRAW);  // 复制顶点数据到显存，vertices是矩形顶点数据
 
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);    // 拷贝索引缓冲对象,indices是索引数据
+//    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+//    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);    // 拷贝索引缓冲对象,indices是索引数据
 
     // 第一个参数，指定要配置的顶点属性，在顶点着色器中使用layout(location=0)定义了position顶点属性的位置值(Location)
     // 意思应该是顶点属性组中的索引
@@ -201,11 +219,7 @@ int main(int argc, char** argv)
     // 顶点数据在显存中只是一大块二进制内存块，这里告诉OpenGL这块内存的格式是什么
     // 顶点数据
 
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void *)(3 * sizeof(float)));       // 这个函数告诉OpenGL如何解析顶点数据
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void *)0);
-    // glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-    glEnableVertexAttribArray(0);       // 默认情况下顶点属性变量是关闭的，需要使用glEnableVertexAttribArray启用
-    glEnableVertexAttribArray(1);
+
 
     // note that this is allowed, the call to glVertexAttribPointer registered VBO as the vertex attribute's bound vertex buffer object so afterwards we can safely unbind
     // 注意这是允许的，对glVertexAttribPointer的调用将VBO注册为顶点属性的边界顶点缓冲对象，因此后续可以安全地解绑。
@@ -240,9 +254,13 @@ int main(int argc, char** argv)
 
         // draw our first triangle绘制第一个三角形
         glUseProgram(shaderProgram);
-        // glBindVertexArray(VAO); // seeing as we only have a single VAO there's no need to bind it every time, but we'll do so to keep things a bit more organized
-        // glDrawArrays(GL_TRIANGLES, 0, 6);
-        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+        glBindVertexArray(VAO[0]); // seeing as we only have a single VAO there's no need to bind it every time, but we'll do so to keep things a bit more organized
+        // 第一个参数是类型，第二个参数是
+        glDrawArrays(GL_TRIANGLES, 0, 3);
+        glBindVertexArray(VAO[1]); // seeing as we only have a single VAO there's no need to bind it every time, but we'll do so to keep things a bit more organized
+        // 第一个参数是类型，第二个参数是
+        glDrawArrays(GL_TRIANGLES, 0, 3);
+//        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
         // glBindVertexArray(0); // no need to unbind it every time
 
         // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
@@ -254,9 +272,10 @@ int main(int argc, char** argv)
 
     // optional: de-allocate all resources once they've outlived their purpose:
     // ------------------------------------------------------------------------
-    glDeleteVertexArrays(1, &VAO);
-    glDeleteBuffers(1, &VBO);
-    glDeleteBuffers(1, &EBO);
+    glDeleteVertexArrays(2, VAO);
+    glDeleteBuffers(1, &VBO1);
+    glDeleteBuffers(1, &VBO2);
+    // glDeleteBuffers(1, &EBO);
     glDeleteProgram(shaderProgram);
 
     // glfw: terminate, clearing all previously allocated GLFW resources.
