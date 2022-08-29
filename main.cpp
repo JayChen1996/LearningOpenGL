@@ -35,6 +35,16 @@ const char *fragmentShaderSource = "#version 330 core\n"
                                    //"   FragColor = vec4(0.2f, 0.5f, 0.7f, 1.0f);\n"
                                    "}\n\0";
 
+const char *fragmentShaderSource1 ="#version 330 core\n"
+                                   "in vec3 color;\n"
+                                   "out vec4 FragColor;\n"
+                                   "void main()\n"
+                                   "{\n"
+                                   // "   FragColor = vec4(color.x, color.y, color.z, 1.0f);\n"
+                                   "   FragColor = vec4(0.2f, 0.5f, 0.7f, 1.0f);\n"
+                                   "}\n\0";
+
+
 //
 //
 //void framebuffer_size_callback(GLFWwindow* window, int width, int height)
@@ -117,10 +127,15 @@ int main(int argc, char** argv)
     }
     // fragment shader
     unsigned int fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
+    unsigned int fragmentShader1 = glCreateShader(GL_FRAGMENT_SHADER);
     glShaderSource(fragmentShader, 1, &fragmentShaderSource, NULL);
+    glShaderSource(fragmentShader1, 1, &fragmentShaderSource1, NULL);
     glCompileShader(fragmentShader);
+    glCompileShader(fragmentShader1);
     // check for shader compile errors
     glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &success);
+    glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &success);
+
     if (!success)
     {
         glGetShaderInfoLog(fragmentShader, 512, NULL, infoLog);
@@ -128,6 +143,7 @@ int main(int argc, char** argv)
     }
     // link shaders
     unsigned int shaderProgram = glCreateProgram();
+    unsigned int shaderProgram1 = glCreateProgram();
     // 创建着色器程序对象，注意着色器对象和着色器程序对象是有区别的，着色器对象是着色器源代码编译结果，着色器程序对象是着色器对象编译链接后的结果。
     glAttachShader(shaderProgram, vertexShader);
     glAttachShader(shaderProgram, fragmentShader);
@@ -138,8 +154,17 @@ int main(int argc, char** argv)
         glGetProgramInfoLog(shaderProgram, 512, NULL, infoLog);
         std::cout << "ERROR::SHADER::PROGRAM::LINKING_FAILED\n" << infoLog << std::endl;
     }
+    glAttachShader(shaderProgram1, vertexShader);
+    glAttachShader(shaderProgram1, fragmentShader1);
+    glLinkProgram(shaderProgram1);
+    glGetProgramiv(shaderProgram, GL_LINK_STATUS, &success);
+    if (!success) {
+        glGetProgramInfoLog(shaderProgram, 512, NULL, infoLog);
+        std::cout << "ERROR::SHADER::PROGRAM::LINKING_FAILED\n" << infoLog << std::endl;
+    }
     glDeleteShader(vertexShader);
     glDeleteShader(fragmentShader);
+    glDeleteShader(fragmentShader1);
 
     // set up vertex data (and buffer(s)) and configure vertex attributes
     // ------------------------------------------------------------------
@@ -257,6 +282,7 @@ int main(int argc, char** argv)
         glBindVertexArray(VAO[0]); // seeing as we only have a single VAO there's no need to bind it every time, but we'll do so to keep things a bit more organized
         // 第一个参数是类型，第二个参数是
         glDrawArrays(GL_TRIANGLES, 0, 3);
+        glUseProgram(shaderProgram1);
         glBindVertexArray(VAO[1]); // seeing as we only have a single VAO there's no need to bind it every time, but we'll do so to keep things a bit more organized
         // 第一个参数是类型，第二个参数是
         glDrawArrays(GL_TRIANGLES, 0, 3);
@@ -277,6 +303,7 @@ int main(int argc, char** argv)
     glDeleteBuffers(1, &VBO2);
     // glDeleteBuffers(1, &EBO);
     glDeleteProgram(shaderProgram);
+    glDeleteProgram(shaderProgram1);
 
     // glfw: terminate, clearing all previously allocated GLFW resources.
     // ------------------------------------------------------------------
