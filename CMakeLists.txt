@@ -32,6 +32,7 @@ include_directories(${Eigen3_INCLUDE_DIRS})
 include_directories(${Pangolin_INCLUDE_DIRS})
 include_directories(./glad/include)
 
+add_executable(cpptest cpptest.cpp)
 
 add_executable(imagedemo ${M_SOURCES})
 link_libraries(imagedemo ${GLEW_LIBRARIES})
